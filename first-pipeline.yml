@@ -6,10 +6,20 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: UsePythonVersion@0
+- checkout: self  # Checkout
+- task: UsePythonVersion@0 # Instal python
   inputs:
     versionSpec: '3.8'
   displayName: 'Install Python'
+- script: |  # Install dependencies
+    python -m pip install --upgrade pip
+    pip install pipenv
+    pipenv --python 3.8
+    pipenv install nose pylint --dev
+  displayName: 'Install dependencies'
 - script: |
-    python --version
+    pipenv run pylint app 
+  displayName: 'Run Linter'
+- script: |
+    pipenv run nosetests
   displayName: 'Check Python Version'
