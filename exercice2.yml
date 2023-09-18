@@ -1,0 +1,31 @@
+# Define variables that will be used throughout the pipeline
+variables:
+
+  message: 'Hello, again from Stage 2!'
+  isRunSecondJob: true  # Conditionally run the second job in each stage
+
+# First Stage: Build
+stages:
+
+- stage: Build
+  jobs:
+  - job: Compile
+    steps:
+    - script: echo "Compiling code..."
+
+  - job: UnitTest
+    condition: eq(variables.isRunSecondJob, true)
+    steps:
+    - script: echo "Running unit tests..."
+
+- stage: Deploy
+  condition: and(succeeded(), eq(variables.isMain, true))
+  jobs:
+  - job: output_message_variable
+    steps:
+    - script: echo "$(message)"
+
+  - job: message
+    condition: eq(variables.isRunSecondJob, true)
+    steps:
+    - script: echo "Deploying to QA environment…"
